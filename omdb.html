@@ -13,7 +13,7 @@
                 e.preventDefault()
                 let filmTitle = document.getElementById('title').value;
                 let filmsUl = document.getElementById('films');
-                let res = await fetch(`http://www.omdbapi.com/?i=tt3896198&apikey=58dcb2a&t=${filmTitle}`);
+                let res = await fetch(`https://www.omdbapi.com/?i=tt3896198&apikey=58dcb2a&t=${filmTitle}`);
                 let data = await res.json();
                 filmsUl.innerHTML = '';
                 console.log(data);
