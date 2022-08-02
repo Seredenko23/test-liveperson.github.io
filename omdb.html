@@ -1,33 +1,54 @@
 <html>
-    <head>
-        <title>OMDB</title>
-    </head>
-    <body>
-        <form name="filmsForm">
-            <input type="text" id="title" name="required">
-            <button id="submitBtn">Submit</button>
-        </form>
-        <ul id="films"></ul>
-        <script>
-            submitBtn.onclick = async (e) => {
-                e.preventDefault()
-                let filmTitle = document.getElementById('title').value;
-                let filmsUl = document.getElementById('films');
-                let res = await fetch(`https://www.omdbapi.com/?i=tt3896198&apikey=58dcb2a&t=${filmTitle}`);
-                let data = await res.json();
-                filmsUl.innerHTML = '';
-                console.log(data);
-                createFilmStatistics(data, filmsUl);
-            }
+  <head>
+    <title>OMDB</title>
+    <script src="https://lpcdn.lpsnmedia.net/webagent/client-SDK.min.js"></script>
+  </head>
+  <body>
+    <form name="filmsForm">
+      <input type="text" id="title" name="required" />
+      <button id="submitBtn">Submit</button>
+    </form>
+    <ul id="films"></ul>
+    <script>
+      lpTag.agentSDK.init({});
+      let filmsUl = document.getElementById("films");
 
-            function createFilmStatistics(film, ul) {
-                let filmData = Object.entries(film);
-                filmData.forEach(element => {
-                    let li = document.createElement('li')
-                    li.innerHTML =  `${element[0]}: ${element[1]}`;
-                    ul.append(li);
-                });
-            }
-        </script>
-    </body>
+      lpTag.agentSDK.bind("chatTranscript.lines", async (data) => {
+        console.log(data);
+        let lines = data.newValue;
+        let lastMessage = lines[lines.length - 1];
+        console.log("LastMessage" + lastMessage.by);
+        if (lastMessage.by === "Visitor") {
+          let filmData = await getFilmFromApi(lastMessage.text);
+          createFilmStatistics(filmData, filmsUl);
+        }
+      });
+
+      submitBtn.onclick = async (e) => {
+        e.preventDefault();
+        let filmTitle = document.getElementById("title").value;
+        let filmData = await getFilmFromApi(filmTitle);
+        createFilmStatistics(filmData, filmsUl);
+      };
+
+      async function getFilmFromApi(filmTitle) {
+        let res = await fetch(
+          `https://www.omdbapi.com/?i=tt3896198&apikey=58dcb2a&t=${filmTitle}`
+        );
+        let data = await res.json();
+        filmsUl.innerHTML = "";
+        console.log(data);
+        return data;
+      }
+
+      function createFilmStatistics(film, ul) {
+        let filmData = Object.entries(film);
+        filmData.forEach((element) => {
+          let li = document.createElement("li");
+          li.innerHTML = `${element[0]}: ${element[1]}`;
+          ul.append(li);
+        });
+      }
+    </script>
+  </body>
 </html>
